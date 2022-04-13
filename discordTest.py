@@ -7,7 +7,7 @@ import Wordle
 richtig an der stelle -> bold (**letter**)
 richtig an anderer stelle -> bold (*letter*)
 '''
-token = ""
+token = open("token.sec", 'r').read()
 
 intents = discord.Intents.default()
 intents.members = True
