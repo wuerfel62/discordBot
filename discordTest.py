@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
 import Wordle
-
+import json
 
 '''
 richtig an der stelle -> bold (**letter**)
 richtig an anderer stelle -> bold (*letter*)
 '''
 token = open("token.sec", 'r').read()
+with open("bot.conf", "r") as confFile:
+    botConf = json.load(confFile)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -20,8 +22,9 @@ get_channel = lambda c: client.get_channel(c)
 wordle = Wordle.wordle()
 #msgs = []
 
-log_channel = 962787056445161502
-role_channel = 962431123319824434
+log_channel = botConf["logChannel"]
+role_channel = botConf["rolesChannel"]
+game_channel = botConf["gamesChannel"]
 
 def get_msg_content(msg):
     word_list = msg.split(" ")
@@ -39,7 +42,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     role = discord.utils.find(lambda r: r.name == 'Admin', message.guild.roles)
-    if message.channel.name == "bot_testing" and message.author.roles[1] == role and message.author != client.user:
+    if message.channel.id == game_channel and message.author.roles[1] == role and message.author != client.user:
         #msgs.append(message)
 
         #if message.author == client.user:
