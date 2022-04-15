@@ -1,6 +1,7 @@
 # Bot Documentation
+A bot for role management for now. It is somewhat customizabe in discord itself. 
 
-## files
+## required files
 
 * channel.conf and roles.conf in json format
 * token.sec for Discord-Bot token
@@ -19,6 +20,7 @@ can only be used in the config text-channel
     * purges/removes all messages in the roles channel
 
 ### bot-config
+these commands are used to change the text-channels the bot uses. For now the bot has to be restartet for the changes to take effect.
 * !set-log-channel
     * used for logs from bot
 * !set-role-channel
