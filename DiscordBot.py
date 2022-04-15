@@ -1,11 +1,6 @@
 import discord
 import json
 
-'''
-richtig an der stelle -> bold (**letter**)
-richtig an anderer stelle -> bold (*letter*)
-'''
-
 with open("token.sec", 'r') as tokenFile:
     token = tokenFile.read()
 
@@ -37,16 +32,13 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    role = discord.utils.find(lambda r: r.name == 'Admin', message.guild.roles)
+    adminRole = discord.utils.find(lambda r: r.name == 'Admin', message.guild.roles)
 
-#   if message.channel.id == game_channel and message.author.roles[1] == role and message.author != client.user:
-#       msgs.append(message)
-#
 #   if message.content == "!clean":
 #       await message.channel.purge()
 #       await send_to_log("**" + message.author.name + "**" + " cleaned channel " + "**" + message.channel.name + "**")
 
-    if message.channel.id == bot_config_channel and message.author != client.user:
+    if message.channel.id == bot_config_channel and message.author != client.user and adminRole in message.author.roles:
         msgContent = message.content.split()
         if msgContent[0] == "!role-add" and len(msgContent) == 3:
             rolesDict[msgContent[1]] = msgContent[2]
@@ -71,7 +63,7 @@ async def on_message(message):
 
             await send_to_log(message.author.name + " regenerated the roles message")
 
-    elif message.author.roles[1] == role:
+    elif adminRole in message.author.roles:
         if message.content == "!set-log-channel":
             botDict["logChannel"] = message.channel.id
             save_channels()
