@@ -53,7 +53,7 @@ async def on_message(message):
 
         if message.content == "!clean":
             await message.channel.purge()
-            await get_channel(log_channel).send("**" + message.author.name + "**" + " cleaned channel " + "**" + message.channel.name + "**")
+            await send_to_log(log_channel).send("**" + message.author.name + "**" + " cleaned channel " + "**" + message.channel.name + "**")
 
         if message.content == "!play":
             #await message.channel.send(wordle.guessedWords)
@@ -86,10 +86,11 @@ async def on_message(message):
         if msgContent[0] == "!role-add" and len(msgContent) == 3:
             rolesDict[msgContent[1]] = msgContent[2]
             save_roles()
-            send_to_log(message.author.name + " added role: " + msgContent[1] + "with emoji: " + msgContent[2])
+            await send_to_log(message.author.name + " added role: " + msgContent[1] + "with emoji: " + msgContent[2])
         elif msgContent[0] == "!role-remove" and len(msgContent) == 2:
             rolesDict.pop(msgContent[1])
-            send_to_log(message.author.name + "removed role: " + msgContent[1])
+            save_roles()
+            await send_to_log(message.author.name + " removed role: " + msgContent[1])
     else:
         ""
 
@@ -101,8 +102,7 @@ async def on_raw_reaction_add(reaction):
         for name, emoji in rolesDict.items():
             if emoji == reaction.emoji.name:
                 await user.add_roles(discord.utils.get(user.guild.roles, name=name), atomic = True)
-                print("role " + name +  " given to " + user.name)
-                await get_channel(log_channel).send("role **" + name + "** given to " + user.name)
+                await send_to_log(log_channel).send("role **" + name + "** given to " + user.name)
             else:
                 print("error" + reaction.emoji.name)
 
@@ -116,8 +116,7 @@ async def on_raw_reaction_remove(reaction):
                 for name, emoji in rolesDict.items():
                     if emoji == reaction.emoji.name:
                         await user.remove_roles(discord.utils.get(user.guild.roles, name=name), atomic = True)
-                        print("role " + name +  " given to " + user.name)
-                        await get_channel(log_channel).send("role **" + name + "** removed from " + user.name)
+                        await send_to_log("role **" + name + "** removed from " + user.name)
                     else:
                         print("error" + reaction.emoji.name)
     
@@ -126,7 +125,8 @@ async def send_to_log(message):
     await get_channel(log_channel).send(message)
 
 def save_roles():
-    json.dump(rolesDict, "roles.conf")
+    with open("roles.conf", "w") as file:
+        json.dump(rolesDict, file)
 
 
     #client.get_user(reaction.user_id)
