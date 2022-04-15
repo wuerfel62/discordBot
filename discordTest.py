@@ -1,5 +1,4 @@
 import discord
-from discord.ext import commands
 import Wordle
 import json
 
@@ -91,6 +90,20 @@ async def on_message(message):
             rolesDict.pop(msgContent[1])
             save_roles()
             await send_to_log(message.author.name + " removed role: " + msgContent[1])
+        elif msgContent[0] == "!regen-roles" and len(msgContent) == 1:
+            await client.get_channel(role_channel).purge()
+
+            rolesMessage = ""
+
+            for r, e in rolesDict.items():
+                rolesMessage += (e + " " + r + "\n")
+
+            rolesMsg = await client.get_channel(role_channel).send(content=rolesMessage)
+
+            for e in rolesDict:
+                await rolesMsg.add_reaction(rolesDict[e])
+
+            await send_to_log(message.author.name + " regenerated the roles message")
     else:
         ""
 
@@ -98,7 +111,7 @@ async def on_message(message):
 async def on_raw_reaction_add(reaction):
     user = reaction.member
 
-    if reaction.channel_id == role_channel:
+    if reaction.channel_id == role_channel and user != client.user:
         for name, emoji in rolesDict.items():
             if emoji == reaction.emoji.name:
                 await user.add_roles(discord.utils.get(user.guild.roles, name=name), atomic = True)
@@ -109,7 +122,7 @@ async def on_raw_reaction_add(reaction):
 @client.event
 async def on_raw_reaction_remove(reaction):
     user = ""
-    if reaction.channel_id == role_channel:
+    if reaction.channel_id == role_channel and user != client.user:
         for member in client.get_all_members():
             if member.id == reaction.user_id:
                 user = member
