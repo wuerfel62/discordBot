@@ -7,9 +7,13 @@ import json
 richtig an der stelle -> bold (**letter**)
 richtig an anderer stelle -> bold (*letter*)
 '''
-token = open("token.sec", 'r').read()
+
+with open("token.sec", 'r') as tokenFile:
+    token = tokenFile.read()
+
 with open("bot.conf", "r") as confFile:
     botDict = json.load(confFile)
+
 with open("roles.conf", "r") as confFile:
     rolesDict = json.load(confFile)
 
@@ -23,6 +27,7 @@ get_channel = lambda c: client.get_channel(c)
 wordle = Wordle.wordle()
 #msgs = []
 
+bot_config_channel = botDict["configChannel"]
 log_channel = botDict["logChannel"]
 role_channel = botDict["rolesChannel"]
 game_channel = botDict["gamesChannel"]
@@ -75,6 +80,16 @@ async def on_message(message):
                 await message.channel.send(w)
             if wordle.is_ingame == False:
                 await message.channel.send("Game Ended")
+
+    elif message.channel.id == bot_config_channel and message.author != client.user:
+        msgContent = message.content.split()
+        if msgContent[0] == "!role-add" and len(msgContent) == 3:
+            rolesDict[msgContent[1]] = msgContent[2]
+            save_roles()
+            send_to_log(message.author.name + " added role: " + msgContent[1] + "with emoji: " + msgContent[2])
+        elif msgContent[0] == "!role-remove" and len(msgContent) == 2:
+            rolesDict.pop(msgContent[1])
+            send_to_log(message.author.name + "removed role: " + msgContent[1])
     else:
         ""
 
@@ -106,7 +121,14 @@ async def on_raw_reaction_remove(reaction):
                     else:
                         print("error" + reaction.emoji.name)
     
-            
+async def send_to_log(message):
+    print(message)
+    await get_channel(log_channel).send(message)
+
+def save_roles():
+    json.dump(rolesDict, "roles.conf")
+
+
     #client.get_user(reaction.user_id)
 
 client.run(token)
