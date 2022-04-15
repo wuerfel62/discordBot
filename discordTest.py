@@ -9,7 +9,7 @@ richtig an anderer stelle -> bold (*letter*)
 with open("token.sec", 'r') as tokenFile:
     token = tokenFile.read()
 
-with open("bot.conf", "r") as confFile:
+with open("channel.conf", "r") as confFile:
     botDict = json.load(confFile)
 
 with open("roles.conf", "r") as confFile:
@@ -125,7 +125,7 @@ def save_roles():
         json.dump(rolesDict, file)
 
 def save_channels():
-    with open("bot.conf", "w") as file:
+    with open("channel.conf", "w") as file:
         json.dump(botDict, file)
 
     #client.get_user(reaction.user_id)
