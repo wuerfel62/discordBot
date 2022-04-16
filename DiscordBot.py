@@ -21,7 +21,7 @@ except:
     open("roles.conf", "x")
     rolesDict = {}
 
-bot = commands.Bot(command_prefix="$")
+bot = commands.Bot(command_prefix="!")
 
 get_channel = lambda c: bot.get_channel(c)
 
