@@ -1,14 +1,25 @@
 import discord
 import json
 
-with open("token.sec", 'r') as tokenFile:
-    token = tokenFile.read()
+try:
+    with open("token.sec", 'r') as tokenFile:
+        token = tokenFile.read()
+except:
+    open("token.sec", 'x')
+    print("Token file empty")
+try:
+    with open("channel.conf", "r") as confFile:
+        botDict = json.load(confFile)
+except:
+    open("channel.conf", "x")
+    botDict = {"rolesChannel": 0, "logChannel": 0, "configChannel": 0}
+try:
+    with open("roles.conf", "r") as confFile:
+        rolesDict = json.load(confFile)
+except:
+    open("roles.conf", "x")
+    rolesDict = {}
 
-with open("channel.conf", "r") as confFile:
-    botDict = json.load(confFile)
-
-with open("roles.conf", "r") as confFile:
-    rolesDict = json.load(confFile)
 
 intents = discord.Intents.default()
 intents.members = True
@@ -27,7 +38,7 @@ role_channel = botDict["rolesChannel"]
 async def on_ready():
     print("We have logged in as {0.user}".format(client))
 
-    await client.change_presence(activity=discord.Game(name="Solitaire"))
+    await client.change_presence(activity=discord.Game(name="Tetris"))
 
 
 @client.event
