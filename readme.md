@@ -1,3 +1,5 @@
+# Version of my bot for my own discord channel
+
 # Bot Documentation
 A bot for role management for now. It is somewhat customizabe in discord itself. 
 
