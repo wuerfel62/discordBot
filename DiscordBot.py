@@ -48,11 +48,18 @@ except:
 
 try:
     with open("settings.conf", "r") as confFile:
-        rolesDict = json.load(confFile)
+        settingsDict = json.load(confFile)
 except:
     open("settings.conf", "x")
     settingsDict = {"prefix": "!", "playedGame": "someGame"}
     save_settings()
+
+try:
+    with open("user.conf", "r") as privateFile:
+        privateChannelUserList = privateFile.read().split(",")
+except:
+    open("privateChannel.conf", "x")
+
 
 bot = commands.Bot(command_prefix=settingsDict["prefix"])
 
@@ -61,6 +68,8 @@ get_channel = lambda c: bot.get_channel(c)
 bot_config_channel = channelsDict["configChannel"]
 log_channel = channelsDict["logChannel"]
 role_channel = channelsDict["rolesChannel"]
+private_channel = channelsDict["privateChannel"]
+general_channel = channelsDict["generalChannel"]
 
 @bot.event
 async def on_ready():
@@ -143,6 +152,12 @@ async def setRoleChannel(ctx):
         channelsDict["rolesChannel"] = ctx.channel.id
         save_channels()
         await send_to_log(ctx.author.name + " changed role-channel to: " + ctx.channel.name)
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if after.channel.id == private_channel and not str(member.id) in privateChannelUserList:
+        await member.move_to(get_channel(general_channel), reason="weil wegen grund")
+        send_to_log(member.name + " tried to join w-inc")
 
 
 @bot.event
