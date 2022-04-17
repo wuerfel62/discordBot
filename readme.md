@@ -30,3 +30,7 @@ these commands are used to change the text-channels the bot uses. For now the bo
     * gets purged (all messages get deleted)
 * !setConfigChannel
     * sets the channel for bot configuration
+* !changePrefix "prefix"
+    * changes the prefix used for bot commands
+* !changeGame "game"
+    * changes the game that is diplayed in discord
