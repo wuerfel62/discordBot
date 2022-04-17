@@ -2,18 +2,43 @@ import discord
 import json
 from discord.ext import commands
 
+#class discord_bot():
+    
+
+
+def save_roles():
+    with open("roles.conf", "w") as file:
+        json.dump(rolesDict, file)
+
+def save_channels():
+    with open("channel.conf", "w") as file:
+        json.dump(channelsDict, file)
+def save_settings():
+    with open("settings.conf", "w") as file:
+        json.dump(settingsDict, file)
+
+def is_admin(ctx):
+    return discord.utils.find(lambda r: r.name == 'Admin', ctx.guild.roles) in ctx.author.guild.roles
+
+async def send_to_log(message):
+    print(message)
+    await get_channel(log_channel).send(message)
+
 try:
     with open("token.sec", 'r') as tokenFile:
         token = tokenFile.read()
 except:
     open("token.sec", 'x')
     print("Token file empty")
+
 try:
     with open("channel.conf", "r") as confFile:
-        botDict = json.load(confFile)
+        channelsDict = json.load(confFile)
 except:
     open("channel.conf", "x")
-    botDict = {"rolesChannel": 0, "logChannel": 0, "configChannel": 0}
+    channelsDict = {"rolesChannel": 0, "logChannel": 0, "configChannel": 0}
+    save_channels()
+
 try:
     with open("roles.conf", "r") as confFile:
         rolesDict = json.load(confFile)
@@ -21,13 +46,21 @@ except:
     open("roles.conf", "x")
     rolesDict = {}
 
-bot = commands.Bot(command_prefix="!")
+try:
+    with open("settings.conf", "r") as confFile:
+        rolesDict = json.load(confFile)
+except:
+    open("settings.conf", "x")
+    settingsDict = {"prefix": "!", "playedGame": "someGame"}
+    save_settings()
+
+bot = commands.Bot(command_prefix=settingsDict["prefix"])
 
 get_channel = lambda c: bot.get_channel(c)
 
-bot_config_channel = botDict["configChannel"]
-log_channel = botDict["logChannel"]
-role_channel = botDict["rolesChannel"]
+bot_config_channel = channelsDict["configChannel"]
+log_channel = channelsDict["logChannel"]
+role_channel = channelsDict["rolesChannel"]
 
 @bot.event
 async def on_ready():
@@ -36,9 +69,18 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Tetris"))
 
 @bot.command()
-async def test(ctx, arg):
-    await ctx.send(arg)
-    await send_to_log("message sent")
+async def changePrefix(ctx, prefix):
+    if is_admin(ctx) and ctx.channel.id == bot_config_channel:
+        settingsDict["prefix"] = prefix
+        await send_to_log(ctx.author.name + " changed command prefix to: " + prefix)
+        save_settings()
+
+@bot.command()
+async def changeGame(ctx, game):
+    if is_admin(ctx) and ctx.channel.id == bot_config_channel:
+        settingsDict["playedGame"] = game
+        send_to_log(ctx.author.name + " changed the game to: " + game)
+
 
 @bot.command()
 async def clean(ctx):
@@ -83,7 +125,7 @@ async def regenRoles(ctx):
 @bot.command()
 async def setLogChannel(ctx):
     if is_admin(ctx):
-        botDict["logChannel"] = ctx.channel.id
+        channelsDict["logChannel"] = ctx.channel.id
         save_channels()
         log_channel = ctx.channel.id
         await send_to_log(ctx.author.name + " changed log-channel to: " + ctx.channel.name)
@@ -91,14 +133,14 @@ async def setLogChannel(ctx):
 @bot.command()
 async def setConfigChannel(ctx):
     if is_admin(ctx):
-        botDict["configChannel"] = ctx.channel.id
+        channelsDict["configChannel"] = ctx.channel.id
         save_channels()
         await send_to_log(ctx.author.name + " changed config-channel to: " + ctx.channel.name)
 
 @bot.command()
 async def setRoleChannel(ctx):
     if is_admin(ctx):
-        botDict["rolesChannel"] = ctx.channel.id
+        channelsDict["rolesChannel"] = ctx.channel.id
         save_channels()
         await send_to_log(ctx.author.name + " changed role-channel to: " + ctx.channel.name)
 
@@ -135,16 +177,6 @@ async def send_to_log(message):
     print(message)
     await get_channel(log_channel).send(message)
 
-def save_roles():
-    with open("roles.conf", "w") as file:
-        json.dump(rolesDict, file)
-
-def save_channels():
-    with open("channel.conf", "w") as file:
-        json.dump(botDict, file)
-
-def is_admin(ctx):
-    return discord.utils.find(lambda r: r.name == 'Admin', ctx.guild.roles) in ctx.author.guild.roles
 
 
     #client.get_user(reaction.user_id)
