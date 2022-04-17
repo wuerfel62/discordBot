@@ -48,7 +48,7 @@ except:
 
 try:
     with open("settings.conf", "r") as confFile:
-        rolesDict = json.load(confFile)
+        settingsDict = json.load(confFile)
 except:
     open("settings.conf", "x")
     settingsDict = {"prefix": "!", "playedGame": "someGame"}
@@ -73,6 +73,7 @@ async def changePrefix(ctx, prefix):
     if is_admin(ctx) and ctx.channel.id == bot_config_channel:
         settingsDict["prefix"] = prefix
         await send_to_log(ctx.author.name + " changed command prefix to: " + prefix)
+        bot.command_prefix = prefix
         save_settings()
 
 @bot.command()
