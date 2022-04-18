@@ -157,7 +157,7 @@ async def setRoleChannel(ctx):
 async def on_voice_state_update(member, before, after):
     if after.channel.id == private_channel and not str(member.id) in privateChannelUserList:
         await member.move_to(get_channel(general_channel), reason="weil wegen grund")
-        send_to_log(member.name + " tried to join w-inc")
+        await send_to_log(member.name + " tried to join w-inc")
 
 
 @bot.event
