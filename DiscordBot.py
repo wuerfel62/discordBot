@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from pickle import NONE
 import discord
 import json
 from discord.ext import commands
@@ -40,15 +42,16 @@ except:
     save_channels()
 
 try:
-    with open("roles.conf", "r") as confFile:
-        rolesDict = json.load(confFile)
+    with open("roles.conf", "r") as rolesFile:
+        rolesDict = json.load(rolesFile)
 except:
     open("roles.conf", "x")
     rolesDict = {}
+    save_roles()
 
 try:
-    with open("settings.conf", "r") as confFile:
-        settingsDict = json.load(confFile)
+    with open("settings.conf", "r") as settingsFile:
+        settingsDict = json.load(settingsFile)
 except:
     open("settings.conf", "x")
     settingsDict = {"prefix": "!", "playedGame": "someGame"}
@@ -58,7 +61,7 @@ try:
     with open("user.conf", "r") as privateFile:
         privateChannelUserList = privateFile.read().split(",")
 except:
-    open("privateChannel.conf", "x")
+    open("user.conf", "x")
 
 
 bot = commands.Bot(command_prefix=settingsDict["prefix"])
@@ -156,7 +159,10 @@ async def setRoleChannel(ctx):
 @bot.event
 async def on_voice_state_update(member, before, after):
     if after.channel.id == private_channel and not str(member.id) in privateChannelUserList:
-        await member.move_to(get_channel(general_channel), reason="weil wegen grund")
+        try:
+            await member.move_to(get_channel(before.channel.id), reason="weil wegen grund")
+        except:
+            await member.move_to(get_channel(general_channel), reason="weil wegen grund")
         await send_to_log(member.name + " tried to join w-inc")
 
 
